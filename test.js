@@ -1,13 +1,13 @@
+var ITERATIONS = 200000;
+
 function test() {
-  RecirculationNeuralNetwork.init(625, 144);
+  RecirculationNeuralNetwork.init(25, 16);
   var error;
-  for(var j = 0; j < 5; j++) {
-    for(var i = 0; i < firstTestData.length; i++) {
-      var vector = ImageToVectorConverter.convert(getImageData(secondTestData[i]));
-      var output = RecirculationNeuralNetwork.step(vector);
-      console.log(output);
-    }
-  }
+  var vector = ImageToVectorConverter.convert(getImageData(secondTestData[0]));
+  for(var j = 0; j < ITERATIONS; j++)
+    RecirculationNeuralNetwork.step(vector);
+  console.log(vector);
+  console.log(RecirculationNeuralNetwork.step(vector));
 }
 
 function getImageData(imagePositionAndDiv) {
@@ -18,7 +18,7 @@ var firstTestData = [
 ]
 
 var secondTestData = [
-  ["img1", 25, 25],
+  ["img1", 5, 5],
   // ["img2", 25, 25],
   // "img3"
 ]
