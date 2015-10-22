@@ -25,12 +25,11 @@ RecirculationNeuralNetwork = {
   },
 
   setInputLayerVector: function(inputArray) {
-    this.inputLayerVector = Vector.create(inputArray);
+    this.inputLayerVector = Matrix.create([inputArray]);
   },
 
   updateHiddenLayerVector: function() {
-    var convertedInputLayerVector = Matrix.create([this.inputLayerVector.elements]);
-    this.hiddenLayerVector = convertedInputLayerVector.multiply(this.firstWeightMatrix);
+    this.hiddenLayerVector = this.inputLayerVector.multiply(this.firstWeightMatrix);
   },
 
   updateOutputLayerVector: function() {
@@ -38,29 +37,21 @@ RecirculationNeuralNetwork = {
   },
 
   updateWeightMatrixes: function() {
-    var errorVector = this.outputLayerVector.subtract(this.inputLayerVector); //TODO check substraction.
+    var errorVector = this.outputLayerVector.subtract(this.inputLayerVector);
     this.updateFirstWeightMatrix(errorVector);
     this.updateSecondWeightMatrix(errorVector);
   },
 
   updateSecondWeightMatrix: function(errorVector) {
-    //Sylvester cannot multiply a vector with another vector & cannot transpose vector
-    var trasposedHiddenLayerVector = Matrix.create([this.hiddenLayerVector.elements]).transpose();
-    var convertedErrorVector = Matrix.create([errorVector.elements]);
-    var deltaMatrix = trasposedHiddenLayerVector.multiply(convertedErrorVector).multiply(this.learningCoefficient);
+    var trasposedHiddenLayerVector = this.hiddenLayerVector.transpose();
+    var deltaMatrix = trasposedHiddenLayerVector.multiply(errorVector).multiply(this.learningCoefficient);
     this.secondWeightMatrix = this.secondWeightMatrix.subtract(deltaMatrix)
   },
 
   updateFirstWeightMatrix: function(errorVector) {
-    // var transposedSecondWeightMatrix = this.secondWeightMatrix.transpose();
-    //TODO check this place. Maybe there is an error in the formula
-    var transposedFirstWeightMatrix = this.firstWeightMatrix.transpose();
-    //Sylvester cannot multiply a vector with another vector & cannot transpose vector
-    var convertedErrorVector = Matrix.create([errorVector.elements]);
-    var trasposedInputLayerVector = Matrix.create([this.inputLayerVector.elements]).transpose();
-    var deltaMatrix = trasposedInputLayerVector.multiply(convertedErrorVector)
-    .multiply(transposedFirstWeightMatrix)
-    .multiply(this.learningCoefficient);
+    var transposedSecondWeightMatrix = this.secondWeightMatrix.transpose();
+    var trasposedInputLayerVector = this.inputLayerVector.transpose();
+    var deltaMatrix = trasposedInputLayerVector.multiply(errorVector).multiply(transposedSecondWeightMatrix).multiply(this.learningCoefficient);
     this.firstWeightMatrix = this.firstWeightMatrix.subtract(deltaMatrix);
   }
 }
