@@ -1,16 +1,18 @@
 function test() {
-  RecirculationNeuralNetwork.init(9, 4);
-  while(true) {
-    for(var i = 0; i < firstTestData.length; i++)
-      console.log(RecirculationNeuralNetwork.step(firstTestData[i]));
+  RecirculationNeuralNetwork.init(625, 144);
+  var error;
+  for(var j = 0; j < 5; j++) {
+    for(var i = 0; i < firstTestData.length; i++) {
+      var vector = ImageToVectorConverter.convert(getImageData(secondTestData[i]));
+      var output = RecirculationNeuralNetwork.step(vector);
+      console.log(output);
+    }
   }
-  //TODO Add this to separated method
-  //TODO Add QUnit assert in the case of exception
-  // ImageToVectorConverter.init(255, 1);
-  // for(var i = 0; i < secondTestData.length; i++)
-  //   console.log(ImageConverter.convert(getImageData(secondTestData[i])));
 }
 
+function getImageData(imagePositionAndDiv) {
+  return document.getElementById(imagePositionAndDiv[0]).getContext('2d').getImageData(0, 0, imagePositionAndDiv[1], imagePositionAndDiv[2])
+}
 var firstTestData = [
   [0.1, 0.5, 0.2, 0.3, -0.2, 0.6, 0.7, -0.7, 0.9],
 ]

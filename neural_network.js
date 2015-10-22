@@ -5,7 +5,7 @@ RecirculationNeuralNetwork = {
   inputLayerVector: null,
   outputLayerVector: null,
   hiddenLayerVector: null,
-  learningCoefficient: 0.0001,
+  learningCoefficient: 0.001,
 
   init: function(fullSize, compressSize) {
     this.initWeightMatrixes(fullSize, compressSize);
@@ -21,7 +21,7 @@ RecirculationNeuralNetwork = {
     this.updateHiddenLayerVector();
     this.updateOutputLayerVector();
     this.updateWeightMatrixes();
-    return this.inputLayerVector;
+    return this.outputLayerVector;
   },
 
   setInputLayerVector: function(inputArray) {
