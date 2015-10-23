@@ -1,16 +1,18 @@
-ImageToVectorConverter = {
+ImageToVectorsConverter = {
 
   maxChannelValue: 255,
   channel: 1,
   CHANNELS_NUMBER: 4,
   
-  init: function(maxChannelValue, channel) {
+  init: function(maxChannelValue, channel, subWidth, subHeight) {
     this.maxChannelValue = maxChannelValue;
     this.channel = channel;
+    this.subWidth = subWidth;
+    this.subHeight = subHeight;
   },
 
   convert: function(imageData) {
-    return this.convertImageDataArrayToVector(imageData);
+    return this.convertImageDataArrayToVectors(imageData);
   },
 
   convertChannelMatrixToVector: function(matrix) {
@@ -33,14 +35,30 @@ ImageToVectorConverter = {
     return matrix;
   },
 
-  convertImageDataArrayToVector: function(imageData) {
+  convertChannelMatrixToVectors: function(matrix) {
+    var k = this.subWidth;
+    var p = this.subHeight;
+    var vectors = [];
+    for(var i = 0; i < matrix.length; i++)
+      for(var j = 0; j < matrix[i].length; j++) {
+        var newI = (i - i % k) / k;
+        var newJ = (j - j % p) / p;
+        var index = newI * p + newJ;//TODO check index
+        if (!vectors[index]) vectors[index] = [];
+        vectors[index].push(matrix[i][j]);
+      }
+    return vectors;
+  },
+
+  convertImageDataArrayToVectors: function(imageData) {
     var channelMatrix = this.convertImageDataArrayToChannelMatrix(imageData, 0);
-    var vector = this.convertChannelMatrixToVector(channelMatrix);
-    return vector;
+    var vectors = this.convertChannelMatrixToVectors(channelMatrix);
+    return vectors;
   },
 
   restore: function(vector) {
-    var image = this.convertImageDataArrayToVector(imageData);
+    //TODO implement!
+    return null;
   },
 
   convertChannelToCoefficient: function(channel) {
