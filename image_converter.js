@@ -43,9 +43,9 @@ ImageToVectorsConverter = {
       for(var j = 0; j < matrix[i].length; j++) {
         var newI = (i - i % k) / k;
         var newJ = (j - j % p) / p;
-        var index = newI * p + newJ;//TODO check index
+        var index = newI * p + newJ;
         if (!vectors[index]) vectors[index] = [];
-        vectors[index].push(matrix[i][j]);
+        vectors[index].push(this.convertChannelToCoefficient(matrix[i][j]));
       }
     return vectors;
   },

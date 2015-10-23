@@ -1,14 +1,17 @@
-var ITERATIONS = 200000;
+var ITERATIONS = 100000;
 
 function test() {
-  // RecirculationNeuralNetwork.init(25, 16);
+  RecirculationNeuralNetwork.init(25, 16);
   ImageToVectorsConverter.init(255, 1, 5, 5);
   var vectors = ImageToVectorsConverter.convert(getImageData(secondTestData[0]));
   console.log(vectors);
-  // for(var j = 0; j < ITERATIONS; j++)
-  //   RecirculationNeuralNetwork.step(vector);
-  // console.log(vector);
-  // console.log(RecirculationNeuralNetwork.step(vector));
+  for(var i = 0; i < ITERATIONS; i++)
+    for(var j = 0; j < vectors.length; j++)
+      RecirculationNeuralNetwork.step(vectors[j]);
+  var results = [];
+  for(var i = 0; i < vectors.length; i++) 
+    results.push(RecirculationNeuralNetwork.step(vectors[i]));
+  console.log(results);
 }
 
 function getImageData(imageSizeAndDiv) {
@@ -21,17 +24,7 @@ var firstTestData = [
 var secondTestData = [
   {
     div: "img1",
-    width: 100,
-    height: 100,
+    width: 25,
+    height: 25,
   },
-]
-
-var thirdTestData = [
-  {
-    div: "img1",
-    width: 100,
-    height: 100,
-    subWidhth: 5,
-    subHeight: 5,
-  }
 ]
