@@ -1,27 +1,92 @@
-<script type="text/javascript" src="./sylvester/sylvester.src.js" ></script>
-<script type="text/javascript" src="image_converter.js" ></script>
-<script type="text/javascript" src="neural_network.js" ></script>
-<script type="text/javascript" src="test.js" ></script>
-<script type="text/javascript">
-  function addImagesOnCanvas() {
-    var context = document.getElementById("img1").getContext('2d');
-    context.beginPath();
-    context.rect(0, 0, 25, 25);
-    context.fillStyle = 'yellow';
-    context.fill();
-    context.lineWidth = 1;
-    context.strokeStyle = 'black';
-    context.stroke();
-    // var image = new Image()
-    // image.src = "https://developer.cdn.mozilla.net/static/img/favicon32.e02854fdcf73.png";
-    // image.crossOrigin="anonymous";
-    // image.onload = function() {
-    //   var context = document.getElementById("img1").getContext('2d');
-    //   context.drawImage(image, 0, 0);
-    // }
-    test();
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="./bootstrap/style.css"/>
+</head>
+    <body>
+        <script type="text/javascript" src="./sylvester/sylvester.src.js" ></script>
+        <script type="text/javascript" src="image_converter.js" ></script>
+        <script type="text/javascript" src="neural_network.js" ></script>
+        <script type="text/javascript" src="test.js" ></script>
+        <script type="text/javascript">
+var vectors;
+var width;
+var height;
+var process;
+
+function start() {
+  getWidthAndHeight();
+  addImagesOnCanvas();
+  initNeuralNetwork();
+  initImageConverter();
+  getImageVectors();
+  runNeuralNetwork();
+  restoreImageFromVectors();
+}
+
+function getWidthAndHeight() {
+  width = getNumber("width");
+  height = getNumber("height");
+}
+
+function addImagesOnCanvas() {
+  var context = document.getElementById("basic").getContext('2d');
+  context.beginPath();
+  context.rect(0, 0, width, height);
+  context.fillStyle = 'yellow';
+  context.fill();
+  context.lineWidth = 1;
+  context.strokeStyle = 'black';
+  context.stroke();
+}
+
+function getNumber(div) {
+  return parseInt(document.getElementById(div).value)
+}
+
+function initNeuralNetwork() {
+  var subWidth = getNumber('sub_width');
+  var subHeight = getNumber('sub_height');
+  var compressWidth = getNumber('compress_width');
+  var compressHeight = getNumber('compress_height');
+  RecirculationNeuralNetwork.init(subWidth*subHeight, compressWidth*compressHeight);
+}
+
+function initImageConverter() {
+  var subWidth = getNumber('sub_width');
+  var subHeight = getNumber('sub_height');
+  ImageToVectorsConverter.init(255, 1, subWidth, subHeight);
+}
+
+function getImageVectors() {
+  vectors = ImageToVectorsConverter.convert("basic", width, height);
+  ImageToVectorsConverter.restore("input", vectors, width, height);
+}
+
+function runNeuralNetwork() {
+  var iterations = getNumber('iterations');
+  for(var i = 0; i < iterations; i++) {
+    for(var j = 0; j < vectors.length; j++)
+      RecirculationNeuralNetwork.step(vectors[j]);
   }
-  window.onload = addImagesOnCanvas;
-</script>
-<canvas id="img1"></canvas><br>
-<canvas id="output"></canvas><br>
+}
+
+function restoreImageFromVectors() {
+  for(var j = 0; j < vectors.length; j++)
+    vectors[j] = RecirculationNeuralNetwork.step(vectors[j]);
+  ImageToVectorsConverter.restore("output", vectors, width, height);
+}
+
+        </script>
+        Width: <input id="width" value="25"/><br>
+        Height: <input id="height" value="25"/><br>
+        Sub width: <input id="sub_width" value="5"/><br>
+        Sub height: <input id="sub_height" value="5"/><br>
+        Compress width: <input id="compress_width" value="4"/><br>
+        Compress height: <input id="compress_height" value="4"/><br>
+        Iterations: <input id="iterations" value="1000"/><br>
+        <input type="submit" onclick="start();" value="Run!"><br>
+        <canvas id="basic" style="left: -100%; position: absolute;"></canvas>
+        <canvas id="input"></canvas>
+        <canvas id="output"></canvas>
+    </body>
+</html>
