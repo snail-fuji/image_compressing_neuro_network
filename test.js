@@ -1,22 +1,23 @@
 var ITERATIONS = 6000;
 
-function test() {     
-  RecirculationNeuralNetwork.init(25, 16);
+function test() {
   ImageToVectorsConverter.init(255, 1, 5, 5);
   var vectors = ImageToVectorsConverter.convert(secondTestData[0].div, secondTestData[0].width, secondTestData[0].height);
-  for(var i = 0; i < ITERATIONS; i++)
-    for(var j = 0; j < vectors.length; j++)
-      RecirculationNeuralNetwork.step(vectors[j]);
-  var results = [];
-  for(var i = 0; i < vectors.length; i++) 
-    results.push(RecirculationNeuralNetwork.step(vectors[i]));
-  draw(vectors, 5, 5, "input");
-  draw(results, 5, 5, "output");
-  // console.log(ImageToVectorsConverter.restore(results, 5, 5));
+  draw(vectors, secondTestData[0].width, secondTestData[0].height, "output");
+  showDifference(secondTestData[0].div, secondTestData[0].width, secondTestData[0].height);
 }
 
 function draw(vectors, width, height, canvas) {
   ImageToVectorsConverter.restore(canvas, vectors, width, height);
+}
+
+function showDifference(div, width, height) {
+  var input = document.getElementById(div).getContext('2d').getImageData(0, 0, width, height);
+  var output = document.getElementById('output').getContext('2d').getImageData(0, 0, width, height);
+  for(var i = 0; i < input.data.length; i++)
+    if (input.data[i] != output.data[i])
+      //TODO use QUnit
+      console.log("Difference in " + (i - i%height)/height + " " + (i % height) + ". It's data[" + i + "]")
 }
 
 var firstTestData = [
@@ -26,7 +27,7 @@ var firstTestData = [
 var secondTestData = [
   {
     div: "img1",
-    width: 5,
-    height: 5,
+    width: 25,
+    height: 25,
   },
 ]

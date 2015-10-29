@@ -40,13 +40,14 @@ ImageToVectorsConverter = {
   },
 
   convertChannelMatrixToVectors: function(matrix) {
+    //TODO check if really p is subWidth
     var k = this.subWidth;
     var p = this.subHeight;
     var vectors = [];
     for(var i = 0; i < matrix.length; i++)
       for(var j = 0; j < matrix[i].length; j++) {
         var newI = (i - i % k) / k;
-        var newJ = (j - j % p) / p;
+        var newJ = (j - j % p) / p; 
         var index = newI * p + newJ;
         if (!vectors[index]) vectors[index] = [];
         vectors[index].push(this.convertChannelToCoefficient(matrix[i][j]));
@@ -63,10 +64,15 @@ ImageToVectorsConverter = {
   restore: function(canvas, vectors, width, height) {
     var context = document.getElementById(canvas).getContext('2d');
     var imageData = context.createImageData(width, height);
-    for(var i = 0; i < vectors.length; i++) { 
-      for(var j = 0; j < vectors[0].length; j++) {
-        var index = this.CHANNELS_NUMBER*(i*height + j) + this.channel;
-        imageData.data[index] = this.convertCoefficientToChannel(vectors[i][j]);
+    var k = this.subWidth;
+    var p = this.subHeight;
+    for(var n = 0; n < vectors.length; n++) { 
+      for(var o = 0; o < vectors[0].length; o++) {
+        var i = (n - n%p)/p*k + (o - o%p)/p
+        var j = n%p*k + o%p;
+        var index = this.CHANNELS_NUMBER*(i*height + j);
+        imageData.data[index + 3] = 255
+        imageData.data[index] = imageData.data[index + 1] = imageData.data[index + 2] = this.convertCoefficientToChannel(vectors[n][o]);
       }
     }
     context.putImageData(imageData, 0, 0);
