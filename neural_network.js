@@ -5,10 +5,17 @@ RecirculationNeuralNetwork = {
   inputLayerVector: null,
   outputLayerVector: null,
   hiddenLayerVector: null,
-  learningCoefficient: 0.0001,
+  firstLearningCoefficient: 0.0001,
+  secondLearningCoefficient: 0.0001,
+  numberOfIterations: 0,
 
   init: function(fullSize, compressSize) {
     this.initWeightMatrixes(fullSize, compressSize);
+    this.resetNumberOfIterations();
+  },
+
+  resetNumberOfIterations: function() {
+    this.numberOfIterations = 0;
   },
 
   initWeightMatrixes: function(n, m) {
@@ -21,6 +28,8 @@ RecirculationNeuralNetwork = {
     this.updateHiddenLayerVector();
     this.updateOutputLayerVector();
     this.updateWeightMatrixes();
+    // this.updateLearningCoefficients();
+    this.increaseNumberOfIterations();
     return this.outputLayerVector.elements[0];
   },
 
@@ -44,14 +53,41 @@ RecirculationNeuralNetwork = {
 
   updateSecondWeightMatrix: function(errorVector) {
     var trasposedHiddenLayerVector = this.hiddenLayerVector.transpose();
-    var deltaMatrix = trasposedHiddenLayerVector.multiply(errorVector).multiply(this.learningCoefficient);
+    var deltaMatrix = trasposedHiddenLayerVector.multiply(errorVector).multiply(this.secondLearningCoefficient);
     this.secondWeightMatrix = this.secondWeightMatrix.subtract(deltaMatrix)
   },
 
   updateFirstWeightMatrix: function(errorVector) {
     var transposedSecondWeightMatrix = this.secondWeightMatrix.transpose();
     var trasposedInputLayerVector = this.inputLayerVector.transpose();
-    var deltaMatrix = trasposedInputLayerVector.multiply(errorVector).multiply(transposedSecondWeightMatrix).multiply(this.learningCoefficient);
+    var deltaMatrix = trasposedInputLayerVector.multiply(errorVector).multiply(transposedSecondWeightMatrix).multiply(this.firstLearningCoefficient);
     this.firstWeightMatrix = this.firstWeightMatrix.subtract(deltaMatrix);
+  },
+
+  // updateLearningCoefficients: function() {
+  //   this.updateFirstLearningCoefficient();
+  //   this.updateSecondLearningCoefficient();
+  // },
+
+  // updateSecondLearningCoefficient: function() {
+  //   var sum = 0;
+  //   for(var i = 0; i < this.hiddenLayerVector.elements[0].length; i++) {
+  //     element = this.hiddenLayerVector.elements[0][i];
+  //     sum += element*element;
+  //   }
+  // },
+
+  // updateFirstLearningCoefficient: function() {
+  //   var sum = 0;
+  //   for(var i = 0; i < this.inputLayerVector.elements[0].length; i++) {
+  //     element = this.inputLayerVector.elements[0][i];
+  //     sum += element*element;
+  //   }
+  //   if (this.numberOfIterations > 50)
+  //     this.firstLearningCoefficient = 1/sum;
+  // },
+
+  increaseNumberOfIterations: function() {
+    this.numberOfIterations++;
   }
 }

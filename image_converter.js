@@ -11,8 +11,12 @@ ImageToVectorsConverter = {
     this.subHeight = subHeight;
   },
 
-  convert: function(imageData) {
-    return this.convertImageDataArrayToVectors(imageData);
+  convert: function(canvas, width, height) {
+    return this.convertImageDataArrayToVectors(this.getImageData(canvas, width, height));
+  },
+
+  getImageData: function(canvas, width, height) {
+    return document.getElementById(canvas).getContext('2d').getImageData(0, 0, width, height);
   },
 
   convertChannelMatrixToVector: function(matrix) {
@@ -55,10 +59,17 @@ ImageToVectorsConverter = {
     var vectors = this.convertChannelMatrixToVectors(channelMatrix);
     return vectors;
   },
-
-  restore: function(vector) {
-    //TODO implement!
-    return null;
+  //TODO remove width and height
+  restore: function(canvas, vectors, width, height) {
+    var context = document.getElementById(canvas).getContext('2d');
+    var imageData = context.createImageData(width, height);
+    for(var i = 0; i < vectors.length; i++) { 
+      for(var j = 0; j < vectors[0].length; j++) {
+        var index = this.CHANNELS_NUMBER*(i*height + j) + this.channel;
+        imageData.data[index] = this.convertCoefficientToChannel(vectors[i][j]);
+      }
+    }
+    context.putImageData(imageData, 0, 0);
   },
 
   convertChannelToCoefficient: function(channel) {
@@ -66,6 +77,8 @@ ImageToVectorsConverter = {
   },
 
   convertCoefficientToChannel: function(coefficient) {
+    if (coefficient > 1) return this.maxChannelValue;
+    if (coefficient < -1) return 0; 
     return this.maxChannelValue*(coefficient + 1)/2
   },
 
