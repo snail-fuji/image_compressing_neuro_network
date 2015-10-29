@@ -30,9 +30,9 @@ ImageToVectorsConverter = {
   },
 
   convertImageDataArrayToChannelMatrix: function(imageData) {
-    var matrix = [];
+    var matrix = [[]];
     for(var i = this.channel; i < imageData.data.length; i+= this.CHANNELS_NUMBER) {
-      if (i % imageData.width == this.channel)
+      if (matrix[matrix.length - 1].length == imageData.width)
         matrix.push([])
       matrix[matrix.length - 1].push(imageData.data[i]);
     }
@@ -40,7 +40,6 @@ ImageToVectorsConverter = {
   },
 
   convertChannelMatrixToVectors: function(matrix) {
-    //TODO check if really p is subWidth
     var k = this.subWidth;
     var p = this.subHeight;
     var vectors = [];
@@ -48,9 +47,11 @@ ImageToVectorsConverter = {
       for(var j = 0; j < matrix[i].length; j++) {
         var newI = (i - i % k) / k;
         var newJ = (j - j % p) / p; 
-        var index = newI * p + newJ;
+        var newSize = (matrix[i].length - matrix[i].length%p)/p
+        var index = newI * newSize + newJ;
         if (!vectors[index]) vectors[index] = [];
         vectors[index].push(this.convertChannelToCoefficient(matrix[i][j]));
+        console.log("Stats: " + i + " " + j + " " + index);
       }
     return vectors;
   },
@@ -61,15 +62,17 @@ ImageToVectorsConverter = {
     return vectors;
   },
   //TODO remove width and height
+  //TODO There is an error!
   restore: function(canvas, vectors, width, height) {
     var context = document.getElementById(canvas).getContext('2d');
     var imageData = context.createImageData(width, height);
     var k = this.subWidth;
     var p = this.subHeight;
     for(var n = 0; n < vectors.length; n++) { 
-      for(var o = 0; o < vectors[0].length; o++) {
-        var i = (n - n%p)/p*k + (o - o%p)/p
-        var j = n%p*k + o%p;
+      for(var o = 0; o < vectors[n].length; o++) {
+        var size = (width - width%p)/p;
+        var i = (n - n%size)/size*k + (o - o%p)/p
+        var j = n%size*k + o%p;
         var index = this.CHANNELS_NUMBER*(i*height + j);
         imageData.data[index + 3] = 255
         imageData.data[index] = imageData.data[index + 1] = imageData.data[index + 2] = this.convertCoefficientToChannel(vectors[n][o]);

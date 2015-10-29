@@ -1,5 +1,3 @@
-var ITERATIONS = 6000;
-
 function test() {
   ImageToVectorsConverter.init(255, 1, 5, 5);
   var vectors = ImageToVectorsConverter.convert(secondTestData[0].div, secondTestData[0].width, secondTestData[0].height);
@@ -27,7 +25,7 @@ var firstTestData = [
 var secondTestData = [
   {
     div: "img1",
-    width: 25,
-    height: 25,
+    width: 50,
+    height: 50,
   },
 ]
