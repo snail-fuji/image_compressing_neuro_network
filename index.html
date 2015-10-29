@@ -12,10 +12,21 @@ var vectors;
 var width;
 var height;
 var process;
+var image;
+
+function addImageOnCanvas() {
+  image = new Image();
+  image.onload = function() {
+    var context = document.getElementById('basic').getContext('2d');
+    context.drawImage(image, 0, 0);
+  }
+  image.crossOrigin = "./crossdomain.xml";
+  image.src = 'https://scontent.xx.fbcdn.net/hprofile-ash2/v/t1.0-1/c58.58.731.731/s50x50/1044740_1376962529187516_948667307_n.jpg?oh=94d7456e249fb7f51ff7055971763736&oe=56864C2E';
+}
 
 function start() {
   getWidthAndHeight();
-  addImagesOnCanvas();
+  // addImagesOnCanvas();
   initNeuralNetwork();
   initImageConverter();
   getImageVectors();
@@ -26,17 +37,6 @@ function start() {
 function getWidthAndHeight() {
   width = getNumber("width");
   height = getNumber("height");
-}
-
-function addImagesOnCanvas() {
-  var context = document.getElementById("basic").getContext('2d');
-  context.beginPath();
-  context.rect(0, 0, width, height);
-  context.fillStyle = 'yellow';
-  context.fill();
-  context.lineWidth = 1;
-  context.strokeStyle = 'black';
-  context.stroke();
 }
 
 function getNumber(div) {
@@ -76,6 +76,7 @@ function restoreImageFromVectors() {
   ImageToVectorsConverter.restore("output", vectors, width, height);
 }
 
+window.onload = addImageOnCanvas;
         </script>
         Width: <input id="width" value="25"/><br>
         Height: <input id="height" value="25"/><br>
