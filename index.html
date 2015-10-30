@@ -21,11 +21,12 @@ function addImageOnCanvas() {
     context.drawImage(image, 0, 0);
   }
   image.crossOrigin = "./crossdomain.xml";
-  image.src = 'https://scontent.xx.fbcdn.net/hprofile-ash2/v/t1.0-1/c58.58.731.731/s50x50/1044740_1376962529187516_948667307_n.jpg?oh=94d7456e249fb7f51ff7055971763736&oe=56864C2E';
+  image.src = 'http://localhost:3000/test';
 }
 
 function start() {
   getWidthAndHeight();
+  resizeCanvases();
   // addImagesOnCanvas();
   initNeuralNetwork();
   initImageConverter();
@@ -34,13 +35,20 @@ function start() {
   restoreImageFromVectors();
 }
 
+function resizeCanvases() {
+  document.getElementById("input").width = width;
+  document.getElementById("input").height = height;
+  document.getElementById("output").width = width;
+  document.getElementById("output").height = height;
+}
+
 function getWidthAndHeight() {
   width = getNumber("width");
   height = getNumber("height");
 }
 
 function getNumber(div) {
-  return parseInt(document.getElementById(div).value)
+  return parseFloat(document.getElementById(div).value)
 }
 
 function initNeuralNetwork() {
@@ -54,7 +62,7 @@ function initNeuralNetwork() {
 function initImageConverter() {
   var subWidth = getNumber('sub_width');
   var subHeight = getNumber('sub_height');
-  ImageToVectorsConverter.init(255, 1, subWidth, subHeight);
+  ImageToVectorsConverter.init(255, subWidth, subHeight);
 }
 
 function getImageVectors() {
@@ -63,30 +71,50 @@ function getImageVectors() {
 }
 
 function runNeuralNetwork() {
-  var iterations = getNumber('iterations');
-  for(var i = 0; i < iterations; i++) {
+  var error = getNumber('error');
+  var iterations = 0;
+  var currentError = 0;
+  do {
+    currentError = 0;
     for(var j = 0; j < vectors.length; j++)
-      RecirculationNeuralNetwork.step(vectors[j]);
+      for(var k = 0; k < vectors[j].length; k++)
+      currentError += countError(vectors[j][k], RecirculationNeuralNetwork.step(vectors[j][k]));
+      currentError /= vectors.length * vectors[0].length
+      console.log(currentError);
+    iterations++;
   }
+  while(isNaN(currentError) || currentError > error);
+  document.getElementById('time').innerHTML = iterations + " iterations";
+}
+
+function countError(input, output) {
+  var error = 0;
+  for(var i = 0; i < input.length; i++) {
+    var element = (output[i] - input[i])
+    error += element*element;
+  }
+  return error;
 }
 
 function restoreImageFromVectors() {
-  for(var j = 0; j < vectors.length; j++)
-    vectors[j] = RecirculationNeuralNetwork.step(vectors[j]);
+  for(var i = 0; i < vectors.length; i++)
+    for(var j = 0; j < vectors[i].length; j++)
+    vectors[i][j] = RecirculationNeuralNetwork.step(vectors[i][j]);
   ImageToVectorsConverter.restore("output", vectors, width, height);
 }
 
 window.onload = addImageOnCanvas;
         </script>
-        Width: <input id="width" value="50"/><br>
-        Height: <input id="height" value="50"/><br>
-        Sub width: <input id="sub_width" value="5"/><br>
-        Sub height: <input id="sub_height" value="5"/><br>
-        Compress width: <input id="compress_width" value="4"/><br>
-        Compress height: <input id="compress_height" value="4"/><br>
-        Iterations: <input id="iterations" value="1000"/><br>
+        Width: <input id="width" value="256"/><br>
+        Height: <input id="height" value="256"/><br>
+        Sub width: <input id="sub_width" value="2"/><br>
+        Sub height: <input id="sub_height" value="2"/><br>
+        Compress width: <input id="compress_width" value="1"/><br>
+        Compress height: <input id="compress_height" value="1"/><br>
+        Error: <input id="error" value="0.1"/><br>
         <input type="submit" onclick="start();" value="Run!"><br>
-        <canvas id="basic" style="left: -100%; position: absolute;"></canvas>
+        <div id="time"></div>
+        <canvas id="basic" style="left: -100%; position: absolute;" width="256" height="256"></canvas>
         <canvas id="input"></canvas>
         <canvas id="output"></canvas>
     </body>

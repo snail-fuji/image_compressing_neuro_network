@@ -3,22 +3,22 @@
 <script type="text/javascript" src="test.js" ></script>
 <script type="text/javascript">
   function addImagesOnCanvas() {
-    var context = document.getElementById("img1").getContext('2d');
-    context.beginPath();
-    context.rect(0, 0, 25, 25);
-    context.fillStyle = 'yellow';
-    context.fill();
-    context.lineWidth = 1;
-    context.strokeStyle = 'black';
-    context.stroke();
-    // var image = new Image()
-    // image.src = "https://developer.cdn.mozilla.net/static/img/favicon32.e02854fdcf73.png";
-    // image.crossOrigin="anonymous";
-    // image.onload = function() {
-    //   var context = document.getElementById("img1").getContext('2d');
-    //   context.drawImage(image, 0, 0);
-    // }
-    test();
+    // var context = document.getElementById("img1").getContext('2d');
+    // context.beginPath();
+    // context.rect(0, 0, 25, 25);
+    // context.fillStyle = 'yellow';
+    // context.fill();
+    // context.lineWidth = 1;
+    // context.strokeStyle = 'black';
+    // context.stroke();
+    image = new Image();
+    image.onload = function() {
+      var context = document.getElementById('img1').getContext('2d');
+      context.drawImage(image, 0, 0);
+      test();
+    }
+    image.crossOrigin = "./crossdomain.xml";
+    image.src = 'http://localhost:3000/test';
   }
   window.onload = addImagesOnCanvas;
 </script>

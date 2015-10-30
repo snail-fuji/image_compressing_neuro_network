@@ -1,12 +1,11 @@
 ImageToVectorsConverter = {
 
   maxChannelValue: 255,
-  channel: 1,
+  // channel: 0,
   CHANNELS_NUMBER: 4,
   
-  init: function(maxChannelValue, channel, subWidth, subHeight) {
+  init: function(maxChannelValue, subWidth, subHeight) {
     this.maxChannelValue = maxChannelValue;
-    this.channel = channel;
     this.subWidth = subWidth;
     this.subHeight = subHeight;
   },
@@ -29,14 +28,28 @@ ImageToVectorsConverter = {
     return vector;
   },
 
-  convertImageDataArrayToChannelMatrix: function(imageData) {
+  convertImageDataArrayToChannelMatrix: function(imageData, channel) {
     var matrix = [[]];
-    for(var i = this.channel; i < imageData.data.length; i+= this.CHANNELS_NUMBER) {
+    for(var i = channel; i < imageData.data.length; i+= this.CHANNELS_NUMBER) {
       if (matrix[matrix.length - 1].length == imageData.width)
         matrix.push([])
       matrix[matrix.length - 1].push(imageData.data[i]);
     }
     return matrix;
+  },
+
+  convertImageDataArrayToChannelsMatrix: function(imageData) {
+    var matrix = [];
+    for(var i = 0; i < this.CHANNELS_NUMBER; i++)
+      matrix[i] = this.convertImageDataArrayToChannelMatrix(imageData, i);
+    return matrix;
+  },
+
+  convertChannelsMatrixToVectors: function(matrix) {
+    vectors = [];
+    for(var i = 0; i < this.CHANNELS_NUMBER; i++)
+      vectors[i] = this.convertChannelMatrixToVectors(matrix[i]);
+    return vectors;
   },
 
   convertChannelMatrixToVectors: function(matrix) {
@@ -51,31 +64,29 @@ ImageToVectorsConverter = {
         var index = newI * newSize + newJ;
         if (!vectors[index]) vectors[index] = [];
         vectors[index].push(this.convertChannelToCoefficient(matrix[i][j]));
-        console.log("Stats: " + i + " " + j + " " + index);
       }
     return vectors;
   },
 
   convertImageDataArrayToVectors: function(imageData) {
-    var channelMatrix = this.convertImageDataArrayToChannelMatrix(imageData, 0);
-    var vectors = this.convertChannelMatrixToVectors(channelMatrix);
+    var channelsMatrix = this.convertImageDataArrayToChannelsMatrix(imageData);
+    var vectors = this.convertChannelsMatrixToVectors(channelsMatrix);
     return vectors;
   },
   //TODO remove width and height
-  //TODO There is an error!
   restore: function(canvas, vectors, width, height) {
     var context = document.getElementById(canvas).getContext('2d');
     var imageData = context.createImageData(width, height);
     var k = this.subWidth;
     var p = this.subHeight;
-    for(var n = 0; n < vectors.length; n++) { 
-      for(var o = 0; o < vectors[n].length; o++) {
+    for(var n = 0; n < vectors[0].length; n++) { 
+      for(var o = 0; o < vectors[0][n].length; o++) {
         var size = (width - width%p)/p;
         var i = (n - n%size)/size*k + (o - o%p)/p
         var j = n%size*k + o%p;
         var index = this.CHANNELS_NUMBER*(i*height + j);
-        imageData.data[index + 3] = 255
-        imageData.data[index] = imageData.data[index + 1] = imageData.data[index + 2] = this.convertCoefficientToChannel(vectors[n][o]);
+        for(var channel = 0; channel < this.CHANNELS_NUMBER; channel++)
+          imageData.data[index + channel] = this.convertCoefficientToChannel(vectors[channel][n][o]);
       }
     }
     context.putImageData(imageData, 0, 0);

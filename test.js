@@ -1,5 +1,5 @@
 function test() {
-  ImageToVectorsConverter.init(255, 1, 5, 5);
+  ImageToVectorsConverter.init(255, 2, 2);
   var vectors = ImageToVectorsConverter.convert(secondTestData[0].div, secondTestData[0].width, secondTestData[0].height);
   draw(vectors, secondTestData[0].width, secondTestData[0].height, "output");
   showDifference(secondTestData[0].div, secondTestData[0].width, secondTestData[0].height);
