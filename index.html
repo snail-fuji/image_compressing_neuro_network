@@ -54,9 +54,8 @@ function getNumber(div) {
 function initNeuralNetwork() {
   var subWidth = getNumber('sub_width');
   var subHeight = getNumber('sub_height');
-  var compressWidth = getNumber('compress_width');
-  var compressHeight = getNumber('compress_height');
-  RecirculationNeuralNetwork.init(subWidth*subHeight, compressWidth*compressHeight);
+  var sizeOfSecondLayer = getNumber('second_layer');
+  RecirculationNeuralNetwork.init(subWidth*subHeight, sizeOfSecondLayer);
 }
 
 function initImageConverter() {
@@ -73,18 +72,28 @@ function getImageVectors() {
 function runNeuralNetwork() {
   var error = getNumber('error');
   var iterations = 0;
-  var currentError = 0;
   do {
-    currentError = 0;
-    for(var j = 0; j < vectors.length; j++)
-      for(var k = 0; k < vectors[j].length; k++)
-      currentError += countError(vectors[j][k], RecirculationNeuralNetwork.step(vectors[j][k]));
-      currentError /= vectors.length * vectors[0].length
-      console.log(currentError);
+    teachNeuroWeb();
+    var currentError = countCurrentError();
     iterations++;
+    console.log(currentError);
   }
   while(isNaN(currentError) || currentError > error);
   document.getElementById('time').innerHTML = iterations + " iterations";
+}
+
+function teachNeuroWeb() {
+  for(var j = 0; j < vectors.length; j++)
+    for(var k = 0; k < vectors[j].length; k++)
+      RecirculationNeuralNetwork.step(vectors[j][k]);
+}
+
+function countCurrentError() {
+  var currentError = 0;
+  for(var j = 0; j < vectors.length; j++)
+    for(var k = 0; k < vectors[j].length; k++)
+      currentError += countError(vectors[j][k],RecirculationNeuralNetwork.kick(vectors[j][k]));
+  return currentError;
 }
 
 function countError(input, output) {
@@ -99,7 +108,7 @@ function countError(input, output) {
 function restoreImageFromVectors() {
   for(var i = 0; i < vectors.length; i++)
     for(var j = 0; j < vectors[i].length; j++)
-    vectors[i][j] = RecirculationNeuralNetwork.step(vectors[i][j]);
+    vectors[i][j] = RecirculationNeuralNetwork.kick(vectors[i][j]);
   ImageToVectorsConverter.restore("output", vectors, width, height);
 }
 
@@ -109,8 +118,7 @@ window.onload = addImageOnCanvas;
         Height: <input id="height" value="256"/><br>
         Sub width: <input id="sub_width" value="2"/><br>
         Sub height: <input id="sub_height" value="2"/><br>
-        Compress width: <input id="compress_width" value="1"/><br>
-        Compress height: <input id="compress_height" value="1"/><br>
+        Size of the second layer: <input id="second_layer" value="1"/><br>
         Error: <input id="error" value="0.1"/><br>
         <input type="submit" onclick="start();" value="Run!"><br>
         <div id="time"></div>

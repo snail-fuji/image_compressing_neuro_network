@@ -7,7 +7,6 @@ RecirculationNeuralNetwork = {
   hiddenLayerVector: null,
   firstLearningCoefficient: 0.0001,
   secondLearningCoefficient: 0.0001,
-  numberOfIterations: 0,
 
   init: function(fullSize, compressSize) {
     this.initWeightMatrixes(fullSize, compressSize);
@@ -24,12 +23,16 @@ RecirculationNeuralNetwork = {
   },
 
   step: function(inputArray) {
+    this.kick(inputArray);
+    this.updateWeightMatrixes();
+    // this.updateLearningCoefficients();
+    return this.outputLayerVector.elements[0];
+  },
+
+  kick: function(inputArray) {
     this.setInputLayerVector(inputArray);
     this.updateHiddenLayerVector();
     this.updateOutputLayerVector();
-    this.updateWeightMatrixes();
-    // this.updateLearningCoefficients();
-    this.increaseNumberOfIterations();
     return this.outputLayerVector.elements[0];
   },
 
@@ -86,8 +89,4 @@ RecirculationNeuralNetwork = {
   //   if (this.numberOfIterations > 50)
   //     this.firstLearningCoefficient = 1/sum;
   // },
-
-  increaseNumberOfIterations: function() {
-    this.numberOfIterations++;
-  }
 }
